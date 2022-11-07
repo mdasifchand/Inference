@@ -13,3 +13,14 @@ trt::InferenceEngine::InferenceEngine(const Settings& settings)
 {
 }
 
+bool trt::InferenceEngine::buildNetwork(std::string OnnxModelPath) {}
+
+bool trt::InferenceEngine::loadNetwork() {}
+
+bool trt::InferenceEngine::runInference(const std::vector<cv::Mat>& inputImage) {}
+
+std::string trt::InferenceEngine::serializeEngine(const Settings& setting) {}
+
+void trt::InferenceEngine::getGPUUUIDS(std::vector<std::string>& gpuUUIDS) {}
+
+bool trt::InferenceEngine::getFileStatus(const std::string& path) {}
