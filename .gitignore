@@ -3,4 +3,5 @@
 TensorRT/*
 build/*
 */execution-engines/dynamic_restnet50-tuned.engine
-*/onnx/*.onnx
+*/*/*.engine
+*/*/*.onnx
