@@ -43,7 +43,10 @@ RUN curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key  -o
 RUN echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/ros2.list > /dev/null
 RUN apt update
 RUN DEBIAN_FRONTEND=noninteractive apt install -y ros-foxy-desktop
-
+ENV CUDA_HOME=/usr/local/cuda
+ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda/lib64:/usr/local/cuda/extras/CUPTI/lib64
+ENV PATH=$PATH:$CUDA_HOME/bin
+RUN /opt/tensorrt/install_opensource.sh 
 
 
 USER light
@@ -92,5 +95,8 @@ RUN rosdep install -i --from-path src --rosdistro foxy -y
 RUN echo "light" | sudo -S apt install python3-colcon-common-extensions -y
 
 COPY ros2_entrypoint.sh /home/light
+
+RUN pip install conan && source ~/.profile 
+
 ENTRYPOINT ["/home/light/ros2_entrypoint.sh"]
 CMD ["bash"]
