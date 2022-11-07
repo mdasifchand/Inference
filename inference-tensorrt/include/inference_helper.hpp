@@ -3,6 +3,7 @@
 #include "NvInfer.h"
 #include "buffers.h"
 
+#include <filesystem>
 #include <opencv2/opencv.hpp>
 #include <vector>
 
@@ -12,7 +13,7 @@ namespace trt
 struct Settings
 {
     bool FP16 = false;
-    std::vector<int32_t> batchSize;
+    std::vector<int32_t> optBatchSize;
     int32_t maxBatchSize = 8;
     size_t maxWorkSpaceSize = 4000000000;
     int deviceIndex = 0;
@@ -33,9 +34,9 @@ public:
     bool runInference(const std::vector<cv::Mat>& inputImage);
 
 private:
-    std::string serializeEngine(const Settings& setting);
+    std::string serializeEngine(const Settings& settings);
     void getGPUUUIDS(std::vector<std::string>& gpuUUIDS);
-    bool getFileStatus(const std::string& path);
+    bool getFileStatus(const std::filesystem::path& path);
 
     std::unique_ptr<nvinfer1::ICudaEngine> engine_ = nullptr;
     std::unique_ptr<nvinfer1::IExecutionContext> context_ = nullptr;
@@ -46,7 +47,7 @@ private:
     size_t prevBatchSize = 0;
     std::string engineName_;
     cudaStream_t cudaStream_ = nullptr;
-}
+};
 
 } // namespace trt
 

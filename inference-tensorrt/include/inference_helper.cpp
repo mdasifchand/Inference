@@ -13,14 +13,63 @@ trt::InferenceEngine::InferenceEngine(const Settings& settings)
 {
 }
 
-bool trt::InferenceEngine::buildNetwork(std::string OnnxModelPath) {}
+std::string trt::InferenceEngine::serializeEngine(const Settings& settings)
+{
+    std::string engineName = "dynamic_restnet50-tuned.engine";
+    std::vector<std::string> gpuUUIDs;
+    getGPUUUIDS(gpuUUIDs);
+    if (static_cast<size_t>(settings.deviceIndex) >= gpuUUIDs.size())
+    {
+        throw std::runtime_error("Error, out of range device index");
+    }
+    engineName += "." + gpuUUIDs[settings.deviceIndex];
+    if (settings.FP16)
+    {
+        engineName += ".fp16";
+    }
+    else
+    {
+        engineName += ".fp32";
+    }
+    engineName += "." + std::to_string(settings.maxBatchSize) + ".";
+}
 
-bool trt::InferenceEngine::loadNetwork() {}
+bool trt::InferenceEngine::buildNetwork(std::string OnnxModelPath)
+{
 
-bool trt::InferenceEngine::runInference(const std::vector<cv::Mat>& inputImage) {}
+    (void) OnnxModelPath;
+    return true;
+}
 
-std::string trt::InferenceEngine::serializeEngine(const Settings& setting) {}
+bool trt::InferenceEngine::loadNetwork()
+{
+    return true;
+}
 
-void trt::InferenceEngine::getGPUUUIDS(std::vector<std::string>& gpuUUIDS) {}
+bool trt::InferenceEngine::runInference(const std::vector<cv::Mat>& inputImage)
+{
+    (void) inputImage;
+    return true;
+}
 
-bool trt::InferenceEngine::getFileStatus(const std::string& path) {}
+void trt::InferenceEngine::getGPUUUIDS(std::vector<std::string>& gpuUUIDS)
+{
+    int numGPUs;
+    cudaGetDeviceCount(&numGPUs);
+    for (int i = 0; i < numGPUs; i++)
+    {
+        cudaDeviceProp prop;
+        cudaGetDeviceProperties(&prop, i);
+        char uuid[33];
+        for (int i = 0; i < 16; i++)
+        {
+            sprintf(&uuid[i * 2], "%02x", (unsigned char) prop.uuid.bytes[i]);
+        }
+        gpuUUIDS.push_back(std::string(uuid));
+    }
+}
+
+bool trt::InferenceEngine::getFileStatus(const std::filesystem::path& path)
+{
+    return std::filesystem::exists(path);
+}
