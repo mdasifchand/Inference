@@ -1,0 +1,3 @@
+trtexec --explicitBatch --onnx=onnx/dynamic_restnet50-tuned.onnx --minShapes=dynamic_input:1x3x224x224 --optShapes=dynamic_input:3x3x224x224 --maxShapes=dynamic_input:5x3x224x224 --shapes=dynamic_input:3x3x224x224 --saveEngine=dynamic_restnet50-tuned.engine
+#trtexec --explicitBatch --onnx=onnx/dynamic_restnet50.onnx --minShapes=:1x3x224x224 --optShapes=dynamic_input:3x3x224x224 --maxShapes=dynamic_input:5x3x224x224 --shapes=dynamic_input:3x3x224x224 --saveEngine=dynamic_restnet50-tuned.engine
+#trtexec --explicitBatch --onnx=onnx/static-resnet50.onnx --minShapes=:1x3x224x224 --optShapes=dynamic_input:3x3x224x224 --maxShapes=dynamic_input:5x3x224x224 --shapes=dynamic_input:3x3x224x224 --saveEngine=dynamic_restnet50-tuned.engine
