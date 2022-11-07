@@ -19,6 +19,7 @@ ENV PIP_ROOT_USER_ACTION=ignore
 ENV CUDA_HOME=/usr/local/cuda
 ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda/lib64:/usr/local/cuda/extras/CUPTI/lib64
 ENV PATH=$PATH:$CUDA_HOME/bin
+RUN source /opt/conda/bin/activate && conda install -c anaconda ipywidgets
 USER light
 WORKDIR /home/light
 CMD ["bash"]
