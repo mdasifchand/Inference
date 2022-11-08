@@ -1,6 +1,7 @@
 #ifndef INFERENCE_HELPER_HPP_
 #define INFERENCE_HELPER_HPP_
 #include "NvInfer.h"
+#include "NvOnnxParser.h"
 #include "buffers.h"
 
 #include <filesystem>
