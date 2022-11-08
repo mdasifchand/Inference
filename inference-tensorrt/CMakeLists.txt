@@ -14,6 +14,6 @@ target_link_libraries(inference_helper PUBLIC  ${CUDA_LIBRARIES} ${TensorRT_LIBR
 
 
 add_executable(inference-tensorrt src/main.cpp)
-target_include_directories(inference-tensorrt PUBLIC ${CMAKE_CURRENT_PROJECT_DIR}/include /workspace/tensorrt/samples/common ${CUDA_INCLUDE_DIRS} ${TensorRT_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS})
+target_include_directories(inference-tensorrt PUBLIC include /workspace/tensorrt/samples/common ${CUDA_INCLUDE_DIRS} ${TensorRT_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS})
 target_link_libraries(inference-tensorrt inference_helper)
 

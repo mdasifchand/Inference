@@ -32,6 +32,9 @@ std::string trt::InferenceEngine::serializeEngine(const Settings& settings)
         engineName += ".fp32";
     }
     engineName += "." + std::to_string(settings.maxBatchSize) + ".";
+    // ignored optimal batch size for now
+    engineName += "." + std::to_string(settings.maxWorkSpaceSize);
+    return engineName;
 }
 
 bool trt::InferenceEngine::buildNetwork(std::string OnnxModelPath)
