@@ -99,7 +99,7 @@ bool trt::InferenceEngine::buildNetwork(std::string OnnxModelPath)
     defaultProfile->setDimensions(
         inputName, OptProfileSelector::kOPT, Dims4(settings_.maxBatchSize, inputC, inputH, inputW));
     config->addOptimizationProfile(defaultProfile);
-    for (auto i = 2; i < settings_.maxBatchSize; i++)
+    for (auto i = 1; i < settings_.maxBatchSize; i++)
     {
         IOptimizationProfile* profile = builder->createOptimizationProfile();
         profile->setDimensions(inputName, OptProfileSelector::kMIN, Dims4(1, inputC, inputH, inputW));
@@ -149,8 +149,12 @@ bool trt::InferenceEngine::loadNetwork()
     return true;
 }
 
-bool trt::InferenceEngine::runInference(const std::vector<cv::Mat>& inputImage)
+bool trt::InferenceEngine::runInference(
+    const std::vector<cv::Mat>& inputImage, std::vector<std::vector<float>>& featureVectors)
 {
+    auto dims = engine_->getBindingDimensions(0);
+    auto outputLength = engine_->getBindingDimensions(1);
+
     (void) inputImage;
     return true;
 }
@@ -175,4 +179,12 @@ void trt::InferenceEngine::getGPUUUIDS(std::vector<std::string>& gpuUUIDS)
 bool trt::InferenceEngine::getFileStatus(const std::filesystem::path& path)
 {
     return std::filesystem::exists(path);
+}
+
+trt::InferenceEngine::~InferenceEngine()
+{
+    if (cudaStream_)
+    {
+        cudaStreamDestroy(cudaStream_);
+    }
 }

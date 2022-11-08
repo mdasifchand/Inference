@@ -1,5 +1,6 @@
 #ifndef INFERENCE_HELPER_HPP_
 #define INFERENCE_HELPER_HPP_
+
 #include "NvInfer.h"
 #include "NvOnnxParser.h"
 #include "buffers.h"
@@ -13,10 +14,10 @@ namespace trt
 
 struct Settings
 {
-    bool FP16 = false;
+    bool FP16 = true;
     std::vector<int32_t> optBatchSize;
     int32_t maxBatchSize = 8;
-    size_t maxWorkSpaceSize = 4000000000;
+    size_t maxWorkSpaceSize = 3500000000;
     int deviceIndex = 0;
 };
 
@@ -32,7 +33,7 @@ public:
     ~InferenceEngine();
     bool buildNetwork(std::string OnnxModelPath);
     bool loadNetwork();
-    bool runInference(const std::vector<cv::Mat>& inputImage);
+    bool runInference(const std::vector<cv::Mat>& inputImage, std::vector<std::vector<float>>& featureVectors);
 
 private:
     std::string serializeEngine(const Settings& settings);

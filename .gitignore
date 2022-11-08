@@ -5,3 +5,4 @@ build/*
 */execution-engines/dynamic_restnet50-tuned.engine
 */*/*.engine
 */*/*.onnx
+dynamic_restnet50-tuned.engine.ea255eb5e98894cc7055796974f7c4db.fp16.8..3500000000

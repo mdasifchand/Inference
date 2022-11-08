@@ -11,16 +11,7 @@ int main()
     settings.optBatchSize = {2};
     trt::InferenceEngine engine(settings);
     const std::string OnnxModelPath = "onnx/dynamic_restnet50-tuned.onnx";
-    if (!engine.buildNetwork(OnnxModelPath))
-    {
-        throw std::runtime_error("Engine file cannot be generated");
-    }
-
-    if (!engine.loadNetwork())
-    {
-        throw std::runtime_error("Unable to load TensorRT engine file");
-    }
-    
+    engine.buildNetwork(OnnxModelPath);
 
     return 0;
 }
