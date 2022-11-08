@@ -82,6 +82,7 @@ bool trt::InferenceEngine::buildNetwork(std::string OnnxModelPath)
     }
     const auto input = network->getInput(0);
     const auto output = network->getOutput(0);
+    const auto outDims = output->getDimensions();
     const auto inputName = input->getName();
     const auto inputDims = input->getDimensions();
     int32_t inputC = inputDims.d[1];
@@ -98,11 +99,53 @@ bool trt::InferenceEngine::buildNetwork(std::string OnnxModelPath)
     defaultProfile->setDimensions(
         inputName, OptProfileSelector::kOPT, Dims4(settings_.maxBatchSize, inputC, inputH, inputW));
     config->addOptimizationProfile(defaultProfile);
+    for (auto i = 2; i < settings_.maxBatchSize; i++)
+    {
+        IOptimizationProfile* profile = builder->createOptimizationProfile();
+        profile->setDimensions(inputName, OptProfileSelector::kMIN, Dims4(1, inputC, inputH, inputW));
+        profile->setDimensions(inputName, OptProfileSelector::kOPT, Dims4(i, inputC, inputH, inputW));
+        profile->setDimensions(
+            inputName, OptProfileSelector::kMAX, Dims4(settings_.maxBatchSize, inputC, inputH, inputW));
+        config->addOptimizationProfile(profile);
+    }
+    config->setMaxWorkspaceSize(settings_.maxWorkSpaceSize);
+    if (settings_.FP16)
+    {
+        config->setFlag(BuilderFlag::kFP16);
+    }
+    auto profileStream = samplesCommon::makeCudaStream();
+    config->setProfileStream(*profileStream);
+    std::unique_ptr<IHostMemory> plan{builder->buildSerializedNetwork(*network, *config)};
+    if (!plan)
+    {
+        return false;
+    }
+    std::ofstream outFile(engineName_, std::ios::binary);
+    std::cout << "Successfully saved serialized engine file" << engineName_ << std::endl;
     return true;
 }
 
 bool trt::InferenceEngine::loadNetwork()
 {
+    std::ifstream file(engineName_, std::ios::binary | std::ios::ate);
+    std::streamsize ssize = file.tellg();
+    file.seekg(0, std::ios::beg);
+    std::vector<char> buffer(ssize);
+    file.read(buffer.data(), ssize);
+    std::unique_ptr<IRuntime> runtime{createInferRuntime(logger_)};
+    auto rc = cudaSetDevice(settings_.deviceIndex);
+    if (rc != 0)
+    {
+        int numGPUs = -1;
+        cudaGetDeviceCount(&numGPUs);
+        auto errMsg = "Unable to set GPU device index to: " + std::to_string(settings_.deviceIndex)
+            + ". Note, your device has " + std::to_string(numGPUs) + " CUDA-capable GPU(s).";
+        throw std::runtime_error(errMsg);
+    }
+
+    engine_ = std::unique_ptr<nvinfer1::ICudaEngine>(runtime->deserializeCudaEngine(buffer.data(), buffer.size()));
+    context_ = std::unique_ptr<nvinfer1::IExecutionContext>(engine_->createExecutionContext());
+    auto cudaRetCode = cudaStreamCreate(&cudaStream_);
     return true;
 }
 
