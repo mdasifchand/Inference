@@ -39,7 +39,6 @@ std::string trt::InferenceEngine::serializeEngine(const Settings& settings)
 
 bool trt::InferenceEngine::buildNetwork(std::string OnnxModelPath)
 {
-
     engineName_ = serializeEngine(settings_);
     std::cout << "Searching for engine file with name :" << engineName_ << std::endl;
     if (getFileStatus(engineName_))
@@ -81,7 +80,6 @@ bool trt::InferenceEngine::buildNetwork(std::string OnnxModelPath)
     {
         return false;
     }
-
     const auto input = network->getInput(0);
     const auto output = network->getOutput(0);
     const auto inputName = input->getName();
@@ -89,7 +87,6 @@ bool trt::InferenceEngine::buildNetwork(std::string OnnxModelPath)
     int32_t inputC = inputDims.d[1];
     int32_t inputH = inputDims.d[2];
     int32_t inputW = inputDims.d[3];
-
     auto config = std::unique_ptr<nvinfer1::IBuilderConfig>(builder->createBuilderConfig());
     if (!config)
     {
@@ -101,8 +98,6 @@ bool trt::InferenceEngine::buildNetwork(std::string OnnxModelPath)
     defaultProfile->setDimensions(
         inputName, OptProfileSelector::kOPT, Dims4(settings_.maxBatchSize, inputC, inputH, inputW));
     config->addOptimizationProfile(defaultProfile);
-    
-
     return true;
 }
 
