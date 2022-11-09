@@ -8,10 +8,12 @@
 int main()
 {
     trt::Settings settings;
-    settings.optBatchSize = {2};
+    // settings.optBatchSize = {2};
     trt::InferenceEngine engine(settings);
     const std::string OnnxModelPath = "onnx/dynamic_restnet50-tuned.onnx";
-    engine.buildNetwork(OnnxModelPath);
+    engine.buildNetwork(OnnxModelPath, false);
+    engine.loadNetwork();
+    
 
     return 0;
 }

@@ -14,9 +14,9 @@ namespace trt
 
 struct Settings
 {
-    bool FP16 = true;
-    std::vector<int32_t> optBatchSize;
-    int32_t maxBatchSize = 8;
+    bool FP16 = false;
+    std::vector<int32_t> optBatchSize{3};
+    int32_t maxBatchSize = 5;
     size_t maxWorkSpaceSize = 3500000000;
     int deviceIndex = 0;
 };
@@ -31,7 +31,7 @@ class InferenceEngine
 public:
     InferenceEngine(const Settings& settings);
     ~InferenceEngine();
-    bool buildNetwork(std::string OnnxModelPath);
+    bool buildNetwork(std::string OnnxModelPath, bool createEngine);
     bool loadNetwork();
     bool runInference(const std::vector<cv::Mat>& inputImage, std::vector<std::vector<float>>& featureVectors);
 

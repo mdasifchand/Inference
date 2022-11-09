@@ -37,8 +37,13 @@ std::string trt::InferenceEngine::serializeEngine(const Settings& settings)
     return engineName;
 }
 
-bool trt::InferenceEngine::buildNetwork(std::string OnnxModelPath)
+bool trt::InferenceEngine::buildNetwork(std::string OnnxModelPath, bool createEngine)
 {
+    if (!createEngine)
+    {
+        engineName_ = "execution-engines/dynamic_restnet50-tuned.engine";
+        return true;
+    }
     engineName_ = serializeEngine(settings_);
     std::cout << "Searching for engine file with name :" << engineName_ << std::endl;
     if (getFileStatus(engineName_))
@@ -71,6 +76,7 @@ bool trt::InferenceEngine::buildNetwork(std::string OnnxModelPath)
     file.seekg(0, std::ios::beg);
 
     std::vector<char> buffer(size);
+    std::cout << "vector buffer size is " << size << std::endl;
     if (!file.read(buffer.data(), size))
     {
         throw std::runtime_error("Unable to read engine file");
@@ -127,10 +133,15 @@ bool trt::InferenceEngine::buildNetwork(std::string OnnxModelPath)
 
 bool trt::InferenceEngine::loadNetwork()
 {
+    if (getFileStatus(engineName_))
+    {
+        std::cout << "Engine file exists" << std::endl;
+    }
     std::ifstream file(engineName_, std::ios::binary | std::ios::ate);
     std::streamsize ssize = file.tellg();
     file.seekg(0, std::ios::beg);
     std::vector<char> buffer(ssize);
+    std::cout << "size of binary is " << ssize << std::endl;
     file.read(buffer.data(), ssize);
     std::unique_ptr<IRuntime> runtime{createInferRuntime(logger_)};
     auto rc = cudaSetDevice(settings_.deviceIndex);
