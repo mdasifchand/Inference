@@ -37,15 +37,17 @@ ENV PIP_ROOT_USER_ACTION=ignore
 
 ENV LANG C.UTF-8
 ENV LC_ALL C.UTF-8
-
+ENV OPENCV_VERSION 4.4.0
+RUN git clone https://github.com/opencv/opencv.git -b $OPENCV_VERSION --depth 1 && cd opencv && mkdir -p build && cd build && cmake .. && make install -j8
 RUN apt update && apt install -y curl gnupg2 lsb-release
 RUN curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key  -o /usr/share/keyrings/ros-archive-keyring.gpg
 RUN echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/ros2.list > /dev/null
 RUN apt update
+
 RUN DEBIAN_FRONTEND=noninteractive apt install -y ros-foxy-desktop
 ENV CUDA_HOME=/usr/local/cuda
-ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda/lib64:/usr/local/cuda/extras/CUPTI/lib64
-ENV PATH=$PATH:$CUDA_HOME/bin
+ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda/lib64:/usr/local/cuda/extras/CUPTI/lib64:/usr/local/lib
+ENV PATH=$PATH:$CUDA_HOME/bin:/usr/local/bin
 RUN /opt/tensorrt/install_opensource.sh 
 
 

@@ -6,12 +6,11 @@
 #include "buffers.h"
 
 #include <filesystem>
-#include <opencv2/opencv.hpp>
+#include <opencv4/opencv2/opencv.hpp>
 #include <vector>
 
 namespace trt
 {
-
 struct Settings
 {
     bool FP16 = false;
@@ -34,6 +33,7 @@ public:
     bool buildNetwork(std::string OnnxModelPath, bool createEngine);
     bool loadNetwork();
     bool runInference(const std::vector<cv::Mat>& inputImage, std::vector<std::vector<float>>& featureVectors);
+    void setEngineName(const std::string& engineName);
 
 private:
     std::string serializeEngine(const Settings& settings);

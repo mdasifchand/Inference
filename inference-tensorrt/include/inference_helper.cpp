@@ -41,8 +41,15 @@ bool trt::InferenceEngine::buildNetwork(std::string OnnxModelPath, bool createEn
 {
     if (!createEngine)
     {
-        engineName_ = "execution-engines/dynamic_restnet50-tuned.engine";
-        return true;
+        if (engineName_.empty())
+        {
+            throw std::runtime_error("please provide an engine path");
+        }
+        else
+        {
+            std::cout << "Engine path has been set to " << engineName_ << std::endl;
+            return true;
+        }
     }
     engineName_ = serializeEngine(settings_);
     std::cout << "Searching for engine file with name :" << engineName_ << std::endl;
@@ -161,12 +168,81 @@ bool trt::InferenceEngine::loadNetwork()
 }
 
 bool trt::InferenceEngine::runInference(
-    const std::vector<cv::Mat>& inputImage, std::vector<std::vector<float>>& featureVectors)
+    const std::vector<cv::Mat>& inputImages, std::vector<std::vector<float>>& featureVectors)
 {
-    auto dims = engine_->getBindingDimensions(0);
-    auto outputLength = engine_->getBindingDimensions(1);
+    auto inputLength = engine_->getBindingDimensions(0);
+    auto outputLength = engine_->getBindingDimensions(1).d[1];
+    Dims4 inputDims = {static_cast<int32_t>(inputImages.size()), inputLength.d[1], inputLength.d[2], inputLength.d[3]};
+    context_->setBindingDimensions(0, inputDims);
+    if (!context_->allInputDimensionsSpecified())
+    {
+        throw std::runtime_error("All dimensions for inputs are not fully specified");
+    }
+    auto batchSize = static_cast<int32_t>(inputImages.size());
+    // batch size is going to be constant
+    inputBuffer_.hostBuffer.resize(inputDims);
+    inputBuffer_.deviceBuffer.resize(inputDims);
+    Dims2 outputDims{batchSize, outputLength};
+    outputBuffer_.hostBuffer.resize(outputDims);
+    outputBuffer_.deviceBuffer.resize(outputDims);
+    auto* hostBuffer = static_cast<float*>(inputBuffer_.hostBuffer.data());
+    for (size_t batch = 0; batch < inputImages.size(); batch++)
+    {
+        auto image = inputImages[batch];
+        image.convertTo(image, CV_32FC3, 1.f / 255.f);
+        cv::subtract(image, cv::Scalar(0.5f, 0.5f, 0.5f), image, cv::noArray(), -1);
+        cv::divide(image, cv::Scalar(0.5f, 0.5f, 0.5f), image, 1, -1);
+        int offset = inputLength.d[1] * inputLength.d[2] * inputLength.d[3] * batch;
+        int r = 0, g = 0, b = 0;
+        for (int i = 0; i < inputLength.d[1] * inputLength.d[2] * inputLength.d[3]; ++i)
+        {
+            if (i % 3 == 0)
+            {
+                hostBuffer[offset + r++] = *(reinterpret_cast<float*>(image.data) + i);
+            }
+            else if (i % 3 == 1)
+            {
+                hostBuffer[offset + g++ + inputLength.d[2] * inputLength.d[3]]
+                    = *(reinterpret_cast<float*>(image.data) + i);
+            }
+            else
+            {
+                hostBuffer[offset + b++ + inputLength.d[2] * inputLength.d[3] * 2]
+                    = *(reinterpret_cast<float*>(image.data) + i);
+            }
+        }
+    }
+    auto ret = cudaMemcpyAsync(inputBuffer_.deviceBuffer.data(), inputBuffer_.hostBuffer.data(),
+        inputBuffer_.hostBuffer.nbBytes(), cudaMemcpyHostToDevice, cudaStream_);
+    if (ret != 0)
+    {
+        return false;
+    }
+    std::vector<void*> predicitonBindings = {inputBuffer_.deviceBuffer.data(), outputBuffer_.deviceBuffer.data()};
+    bool status = context_->enqueueV2(predicitonBindings.data(), cudaStream_, nullptr);
+    if (!status)
+    {
+        return false;
+    }
+    ret = cudaMemcpyAsync(outputBuffer_.hostBuffer.data(), outputBuffer_.deviceBuffer.data(),
+        outputBuffer_.deviceBuffer.nbBytes(), cudaMemcpyDeviceToHost, cudaStream_);
+    if (ret != 0)
+    {
+        std::cout << "Unable to copy buffer from GPU back to CPU" << std::endl;
+        return false;
+    }
 
-    (void) inputImage;
+    for (int batch = 0; batch < batchSize; ++batch)
+    {
+        std::vector<float> featureVector;
+        featureVector.resize(outputLength);
+
+        memcpy(featureVector.data(),
+            reinterpret_cast<const char*>(outputBuffer_.hostBuffer.data()) + batch * outputLength * sizeof(float),
+            outputLength * sizeof(float));
+        featureVectors.emplace_back(std::move(featureVector));
+    }
+
     return true;
 }
 
@@ -198,4 +274,10 @@ trt::InferenceEngine::~InferenceEngine()
     {
         cudaStreamDestroy(cudaStream_);
     }
+}
+
+void trt::InferenceEngine::setEngineName(const std::string& engineName)
+{
+
+    engineName_ = engineName;
 }
