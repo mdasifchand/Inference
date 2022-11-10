@@ -33,21 +33,21 @@ int main(int argc, char* argv[])
     engine.buildNetwork(OnnxModelPath, false);
     engine.loadNetwork();
     std::vector<cv::Mat> images;
-    const std::string InputImage = "/project-workspace/test/U.jpeg";
+    const std::string InputImage = "/project-workspace/test/cat.png";
     auto img = cv::imread(InputImage);
+    cv::resize(img, img, cv::Size(224, 224), cv::INTER_LINEAR);
     cv::cvtColor(img, img, cv::COLOR_BGR2RGB);
     images.push_back(img);
     images.push_back(img); // batch size is set to 2
+    images.push_back(img);
     std::vector<std::vector<float>> outputVector;
-    auto ret = engine.runInference(images, outputVector);
-    std::cout << "size of output vector is " << outputVector[0].size() << std::endl;
-    std::cout << "\n" << std::endl;
-    // for (int i = 0; i < images.size(); i++)
-    // {
-    //     for (int j = 0; j < outputVector[i].size(); j++)
-    //         std::cout << "\t" << outputVector[i][j];
-    //     std::cout << "next batch values are " << std::endl;
-    // }
+    auto ret = engine.runInference(images, outputVector); // outputVector size is 1000 per batch
+    for (int i = 0; i < images.size(); i++)
+    {
+        for (int j = 0; j < outputVector[i].size(); j++)
+            std::cout << "\n" << outputVector[i][j];
+        std::cout << "next batch values are " << std::endl;
+    }
 
     auto x = engine.softMax(batchSize, outputVector);
     return 0;

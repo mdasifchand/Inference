@@ -194,8 +194,8 @@ bool trt::InferenceEngine::runInference(
     {
         auto image = inputImages[batch];
         image.convertTo(image, CV_32FC3, 1.f / 255.f);
-        cv::subtract(image, cv::Scalar(0.5f, 0.5f, 0.5f), image, cv::noArray(), -1);
-        cv::divide(image, cv::Scalar(0.5f, 0.5f, 0.5f), image, 1, -1);
+        cv::subtract(image, cv::Scalar(0.485f, 0.456f, 0.406f), image, cv::noArray(), -1);
+        cv::divide(image, cv::Scalar(0.229f, 0.224f, 0.225f), image, 1, -1);
         int offset = inputLength.d[1] * inputLength.d[2] * inputLength.d[3] * batch;
         int r = 0, g = 0, b = 0;
         for (int i = 0; i < inputLength.d[1] * inputLength.d[2] * inputLength.d[3]; ++i)
