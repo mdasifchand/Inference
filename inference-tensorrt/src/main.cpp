@@ -32,9 +32,23 @@ int main(int argc, char* argv[])
     engine.buildNetwork(OnnxModelPath, false);
     engine.loadNetwork();
     std::vector<cv::Mat> images;
-    const std::string InputImage = "/test/U.jpeg";
+    const std::string InputImage = "/project-workspace/test/U.jpeg";
     auto img = cv::imread(InputImage);
     cv::cvtColor(img, img, cv::COLOR_BGR2RGB);
+    images.push_back(img);
+    images.push_back(img); // batch size is set to 2
+    std::vector<std::vector<float>> outputVector;
+    auto ret = engine.runInference(images, outputVector);
+    std::cout << "size of output vector is " << outputVector[0].size() << std::endl;
+    std::cout << "\n" << std::endl;
+    for (int i = 0; i < images.size(); i++)
+    {
+        for (int j = 0; j < outputVector[i].size(); j++)
+            std::cout << "\t" << outputVector[i][j];
+        std::cout << "next batch values are " << std::endl;
+    }
+    
+
 
     return 0;
 }

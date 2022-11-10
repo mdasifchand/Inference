@@ -39,7 +39,8 @@ private:
     std::string serializeEngine(const Settings& settings);
     void getGPUUUIDS(std::vector<std::string>& gpuUUIDS);
     bool getFileStatus(const std::filesystem::path& path);
-
+    bool fullyConnectedLayerClasses(const std::filesystem::path& path);
+    bool softMax(const int batchSize, std::vector<std::vector<float>> outputVector);
     std::unique_ptr<nvinfer1::ICudaEngine> engine_ = nullptr;
     std::unique_ptr<nvinfer1::IExecutionContext> context_ = nullptr;
     const Settings settings_;
