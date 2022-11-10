@@ -6,6 +6,7 @@ set(CMAKE_CUDA_STANDARD_REQUIRED TRUE)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 
 find_package(OpenCV)
+find_package(TBB REQUIRED) # for std::execution::par
 message(STATUS "opencv include dir: ${OpenCV_INCLUDE_DIRS}")
 message(STATUS "opencv lib dir: ${Opencv_LIBS}")
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
@@ -16,7 +17,7 @@ include_directories(${CUDA_INCLUDE_DIRS})
 add_library(inference_helper SHARED include/inference_helper.cpp include/inference_helper.hpp)
 #target_compile_options(inference_helper PUBLIC $<$<COMPILE_LANGUAGE:CUDA>:-g -G>)
 target_include_directories(inference_helper PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include /workspace/tensorrt/samples/common ${CUDA_INCLUDE_DIRS} ${TensorRT_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS})
-target_link_libraries(inference_helper PUBLIC  ${CUDA_LIBRARIES} ${TensorRT_LIBRARIES} -pthread ${OpenCV_LIBS}  )
+target_link_libraries(inference_helper PUBLIC  ${CUDA_LIBRARIES} ${TensorRT_LIBRARIES} -pthread ${OpenCV_LIBS} TBB::tbb )
 
 
 add_executable(inference-tensorrt src/main.cpp)

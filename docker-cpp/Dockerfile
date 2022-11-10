@@ -95,10 +95,12 @@ RUN echo  "light" | sudo -S rosdep init
 RUN rosdep update
 RUN rosdep install -i --from-path src --rosdistro foxy -y
 RUN echo "light" | sudo -S apt install python3-colcon-common-extensions -y
+RUN echo "light" | sudo -S apt install libtbb-dev -y 
 
 COPY ros2_entrypoint.sh /home/light
 
 RUN pip install conan && source ~/.profile 
+
 
 ENTRYPOINT ["/home/light/ros2_entrypoint.sh"]
 CMD ["bash"]

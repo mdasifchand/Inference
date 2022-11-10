@@ -33,6 +33,7 @@ public:
     bool buildNetwork(std::string OnnxModelPath, bool createEngine);
     bool loadNetwork();
     bool runInference(const std::vector<cv::Mat>& inputImage, std::vector<std::vector<float>>& featureVectors);
+    std::vector<int> softMax(const int& batchSize, const std::vector<std::vector<float>>& outputVector);
     void setEngineName(const std::string& engineName);
 
 private:
@@ -40,7 +41,6 @@ private:
     void getGPUUUIDS(std::vector<std::string>& gpuUUIDS);
     bool getFileStatus(const std::filesystem::path& path);
     bool fullyConnectedLayerClasses(const std::filesystem::path& path);
-    bool softMax(const int batchSize, std::vector<std::vector<float>> outputVector);
     std::unique_ptr<nvinfer1::ICudaEngine> engine_ = nullptr;
     std::unique_ptr<nvinfer1::IExecutionContext> context_ = nullptr;
     const Settings settings_;

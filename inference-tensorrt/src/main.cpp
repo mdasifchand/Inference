@@ -26,6 +26,7 @@ int main(int argc, char* argv[])
     assert(allArgs[1] == "--enginePath");
     trt::Settings settings;
     settings.optBatchSize = {2};
+    auto batchSize = 2;
     trt::InferenceEngine engine(settings);
     engine.setEngineName(allArgs[2]);
     const std::string OnnxModelPath = "onnx/dynamic_restnet50-tuned.onnx";
@@ -41,14 +42,13 @@ int main(int argc, char* argv[])
     auto ret = engine.runInference(images, outputVector);
     std::cout << "size of output vector is " << outputVector[0].size() << std::endl;
     std::cout << "\n" << std::endl;
-    for (int i = 0; i < images.size(); i++)
-    {
-        for (int j = 0; j < outputVector[i].size(); j++)
-            std::cout << "\t" << outputVector[i][j];
-        std::cout << "next batch values are " << std::endl;
-    }
-    
+    // for (int i = 0; i < images.size(); i++)
+    // {
+    //     for (int j = 0; j < outputVector[i].size(); j++)
+    //         std::cout << "\t" << outputVector[i][j];
+    //     std::cout << "next batch values are " << std::endl;
+    // }
 
-
+    auto x = engine.softMax(batchSize, outputVector);
     return 0;
 }

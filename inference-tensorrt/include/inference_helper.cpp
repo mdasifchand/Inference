@@ -1,5 +1,9 @@
 #include "inference_helper.hpp"
 
+#include <execution>
+#include <numeric>
+// TODO: disable std::execution::par with arm
+
 void trt::Logger::log(Severity severity, const char* msg) noexcept
 {
     if (severity <= Severity::kWARNING)
@@ -280,4 +284,25 @@ void trt::InferenceEngine::setEngineName(const std::string& engineName)
 {
 
     engineName_ = engineName;
+}
+
+std::vector<int> trt::InferenceEngine::softMax(
+    const int& batchSize, const std::vector<std::vector<float>>& outputVector)
+{
+    std::vector<int> classes(batchSize, -1);
+    std::vector<std::vector<float>> softMaxNum(batchSize);
+    std::vector<float> softMaxDen;
+    for (int i = 0; i < batchSize; i++)
+    {
+        softMaxNum[i].resize(outputVector[i].size());
+        std::transform(
+            outputVector[i].begin(), outputVector[i].end(), softMaxNum[i].begin(), [](float x) { return std::exp(x); });
+        softMaxDen.push_back(std::reduce(std::execution::par, softMaxNum[i].begin(), softMaxNum[i].end()));
+    }
+    std::cout << softMaxDen[0] << " , " << softMaxDen[1] << std::endl;
+    std::cout << "Class number is"
+              << std::distance(
+                     outputVector[0].begin(), std::max_element(outputVector[0].begin(), outputVector[0].end()));
+
+    return classes;
 }
