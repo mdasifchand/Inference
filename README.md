@@ -38,7 +38,7 @@
 
 - Most of heavy computational models are not designed to run on (resource constrained) embedded systems, especially in case of ML models which use Deep Learning in the background. As a result they cannot be used in real world scenarios where achieving soft/hard deadlines are quite important. 
 
-- Python by itself is an interpreter language and it cannot generate machine level code, therefore we need more of those C++ wrappers to bind ML models and make them run as faster as they could and at the same time utilising resources effectively. [interesting talk about the same](https://www.youtube.com/watch?v=3SypMvnQT_s&ab_channel=TeslaOwnersOnline)
+- Python by itself is an interpreter language and it cannot generate machine level code, therefore we need more of those C++ wrappers to bind ML models to specific processor achitecture and make them run as faster as they could and at the same time utilising resources effectively. [interesting talk about the same](https://www.youtube.com/watch?v=3SypMvnQT_s&ab_channel=TeslaOwnersOnline)
 
 - Vendors like Nvidia also provide DeepLearning specific registers like DLA ex:[Drive_Platform](https://www.nvidia.com/de-de/self-driving-cars/drive-platform/hardware/) , I have also known the infineon [Aurix TC4](https://www.youtube.com/watch?v=vy964dkk67I&ab_channel=Synopsys) series to have PPU's
 
