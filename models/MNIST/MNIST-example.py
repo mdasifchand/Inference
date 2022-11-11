@@ -1,4 +1,7 @@
 
+#TODO: also test with ONNX runtime
+# last updated: Nov 10,2022
+
 from __future__ import print_function
 import argparse
 import torch
