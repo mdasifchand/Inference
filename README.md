@@ -9,6 +9,8 @@
 - Create a dictionary and map numbers to classes (file located at Inference/models/resnet50/classes.txt)
 - Create an example using apache-tvm
 - Use polygraphy to compare runtime latencies between tvm and trt
+- Create Unitest
+- Integrate on Jetson TX2 or AGX
 
 
 # Dependencies
