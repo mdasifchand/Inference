@@ -4,6 +4,7 @@
 
 - For more details read the research paper (included inside the repo). ResNet50 here performs classifications in real-time with minimal latency and maximum throughput. The program is designed to run on AI enabled embedded automotive hardware. 
 
+
 # TODO:
 - Output is represented in the form of numbers
 - Create a dictionary and map numbers to classes (file located at Inference/models/resnet50/classes.txt)
@@ -25,6 +26,7 @@
 - place engine file at `execution-engines` folder
 - create a build directory and perform `cmake ..`
 - from the root of the project run `./build/inference-tensorrt/inference-tensorrt
+- inference-tensorrt includes runtime inference in C++ with TensorRT 
 
 # Pipeline
 - Find a problem (here: Classification)
