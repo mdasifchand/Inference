@@ -24,8 +24,9 @@
 - from the root of the project run `./build/inference-tensorrt/inference-tensorrt
 
 # Pipeline
-
-- Train Neural Network model
+- Find a problem (here: Classification)
+- Look for relevant ML model (Here NN)
+- Train Neural Network model 
 - Quantize or prune model (if needed)
 - Generate a dynamic batch size based ONNX model with optimizations (if needed like constant folding etc)
 - Generate an optimized engine file 
