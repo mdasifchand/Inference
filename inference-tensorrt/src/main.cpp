@@ -14,6 +14,7 @@ static void helper(std::string name)
 - parse values as argument to main function
 - Parse and use it
 - Move the checks into functions
+- Create dictionary for classes 
 */
 int main(int argc, char* argv[])
 {
